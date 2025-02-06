@@ -1,3 +1,4 @@
+using ALM.Integrations.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -7,10 +8,6 @@ namespace ALM.Integrations.Functions
     {
         private readonly ILogger<CreateWorkItem> _logger;
 
-        public CreateWorkItem(ILogger<CreateWorkItem> logger)
-        {
-            _logger = logger;
-        }
 
         [Function(nameof(CreateWorkItem))]
         public async Task Run(
@@ -22,8 +19,17 @@ namespace ALM.Integrations.Functions
             _logger.LogInformation("Message Body: {body}", message.Body);
             _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
+            await svc.CreateWorkItem(message.Body.ToString());
+
              // Complete the message
             await messageActions.CompleteMessageAsync(message);
+        }
+
+        private readonly WorkItemService svc;
+        public CreateWorkItem(ILogger<CreateWorkItem> logger, WorkItemService workItemService)
+        {
+            _logger = logger;
+            svc = workItemService;
         }
     }
 }
